@@ -8,6 +8,7 @@ const {ObjectID} = require('mongodb');
 var {mongoose} = require('./DB/mongoose-conf');
 var {ToDo} = require('./Models/todo');
 var {User} = require('./Models/user');
+var {authenticate} = require('./Middleware/authenticate');
 
 var PORT = process.env.PORT;
 
@@ -46,25 +47,25 @@ app.get('/todos', (req, res) => {
 
 // Getting todo by id
 app.get('/todos/:id', (req, res) => {
-        var id = req.params.id
+    var id = req.params.id
 
-        // Valid id
-        if(!ObjectID.isValid(id)){
-            res.status(404).send("The ID is invalid");
-        } else {
-            ToDo.findById(id)
-                .then((todo) => {
-                    if(!todo){
-                        res.status(404).send("There is no any TODO with that ID");
-                    } else {
-                        res.status(200).send({todo});
-                    }
-                })
-                .catch((err) => {
-                    res.status(400).send();
-                });
-        }
-    });
+    // Valid id
+    if(!ObjectID.isValid(id)){
+        res.status(404).send("The ID is invalid");
+    } else {
+        ToDo.findById(id)
+            .then((todo) => {
+                if(!todo){
+                    res.status(404).send("There is no any TODO with that ID");
+                } else {
+                    res.status(200).send({todo});
+                }
+            })
+            .catch((err) => {
+                res.status(400).send();
+            });
+    }
+});
 
 app.delete('/todos/:id', (req, res) => {
     var id = req.params.id
@@ -133,7 +134,11 @@ app.post('/users', (req, res) => {
         .catch((err) => {
             res.status(400).send(err);
         });
-})
+});
+
+app.get('/users/me', authenticate,  (req, res) => {
+    res.send(req.user);
+});
 
 app.listen(PORT, () => {
     console.log(`Started app at ${PORT}`);
