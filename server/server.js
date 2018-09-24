@@ -12,6 +12,7 @@ var app = express();
 // request to be a json
 app.use(bodyParser.json());
 
+// Adding new todo
 app.post('/todos', (req, res) => {
     var todo = new ToDo({
         text: req.body.text
@@ -24,6 +25,18 @@ app.post('/todos', (req, res) => {
         .catch((err) => {
             res.status(400).send(err);
         });
+});
+
+// Getting all todos
+app.get('/todos', (req, res) => {
+
+    ToDo.find()
+        .then((todos) => {
+        res.status(200).send({todos});
+        })
+        .catch((err) => {
+            res.status(400).send(err);
+        })
 });
 
 app.listen(3000, () => {
