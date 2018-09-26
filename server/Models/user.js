@@ -78,6 +78,30 @@ UserSchema.statics.findByToken = function (token) {
     })
 }
 
+UserSchema.statics.findByCredentials = function (email, password) {
+    var User = this;
+
+    return User.findOne({email})
+        .then((user) => {
+
+            // In case user does not exist
+            if(!user) {
+               throw new Error();
+            }
+
+            return bcrypt.compare(password, user.password)
+                .then((res) => {
+                    if(res){
+                        return Promise.resolve(user);
+                    } else {
+                        throw new Error();
+                    }
+                })
+                .catch((err) => {return Promise.reject()});
+        }) 
+        .catch((e) => {return Promise.reject()});
+}
+
 // Middleware that will run before user is saved 
 UserSchema.pre('save', function (next) {
     var user = this;
